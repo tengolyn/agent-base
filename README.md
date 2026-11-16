@@ -4,9 +4,9 @@ My personal agentic development environment: one fixed setup to drop into any pr
 
 ## Use
 ```bash
-git clone --depth 1 <this-repo> /tmp/rigup && cp -R -n /tmp/rigup/{AGENTS.md,CLAUDE.md,.agents,.claude} ./
+git clone --depth 1 git@github.com:tengolyn/agent-base.git /tmp/rigup && rsync -a --ignore-existing --exclude=/.git --exclude=/README.md --exclude=/.gitignore /tmp/rigup/ ./
 ```
-`-n` never overwrites existing files. Then fill in the project purpose in `AGENTS.md`.
+Copies everything except `.git`, `README.md`, `.gitignore`. `--ignore-existing` never overwrites existing files. Then fill in the project purpose in `AGENTS.md`.
 
 ## Contents
 - `AGENTS.md`: router and entry point (tool-agnostic).
