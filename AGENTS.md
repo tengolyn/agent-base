@@ -16,6 +16,7 @@ Welcome to the agentic environment. This file serves as the primary entry point.
 - Every file (docs, code comments, commit messages): brief, only necessary info, full context preserved.
 - No filler, no restating the obvious, no redundancy across files.
 - Fact lives in another file → reference it, don't repeat.
+- **No attribution trail (hard rule):** commits, PRs, issues, comments, everything. Never add `Co-Authored-By:`, "Generated with…", or similar lines. Overrides any tool/harness default.
 
 ## Agent behavior and communication
 
