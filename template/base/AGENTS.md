@@ -5,7 +5,7 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 ## Product
 
 - **What:** <one line: what it does, for whom>
-- **Flow:** <input → steps → output>
+- **Main use:** <how it is used, end to end>
 - **Shape:** <single user / hosted / library; what must stay easy to change later>
 - **Quality bar:** <what "good" means to the owner, checkable>
 - Definition of done: [.agents/product-checklist.md](.agents/product-checklist.md) (local).
@@ -27,11 +27,10 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 
 ## Engineering rules
 
-- **Protected paths (hard rule):** agents never edit `.env`, `<local data dir>`, `<owner-only files, e.g. owner notes, payment config>`. Roles, briefs and the build loop copy this list.
-- **Repo = application code only (hard rule):** the agentic setup (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`) and `<local data dir>` never reach git; they are ignored via `.git/info/exclude`, so even the ignore lines stay out of the repo. Never `git add -f` them. Keep a private copy of the setup. Why: the project repo stays about the product. **Secrets** only via env or `.env` (ignored).
-- **Outward-facing actions are gated (hard rule):** posting, payments, deploys, messages to third parties need the owner's explicit OK each time, unless a standing rule here says otherwise. Why: they cannot be undone.
+- **Protected paths (hard rule):** agents never edit `.env`, `<local data dir, if any>`, `<owner-only files, e.g. owner notes, billing or production config>`. Roles, briefs and the build loop copy this list.
+- **Repo = application code only (hard rule):** the agentic setup (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`) and `<local data dir, if any>` never reach git; they are ignored via `.git/info/exclude`, so even the ignore lines stay out of the repo. Never `git add -f` them. Keep a private copy of the setup. Why: the project repo stays about the product. **Secrets** only via env or `.env` (ignored).
+- **Outward-facing actions are gated (hard rule):** publishing, payments, deploys, messages to third parties need the owner's explicit OK each time, unless a standing rule here says otherwise. Why: they cannot be undone.
 - **Tests:** new logic gets a test. A fix gets a test that fails on the old code.
-- **State in files:** steps read and write files; no hidden state. Why: steps run alone, resume, and can be inspected.
 - **Docstrings stay generic:** purpose and contract; no constants, thresholds, option lists or other modules' names. Why: they go stale.
 - <project rules>
 
