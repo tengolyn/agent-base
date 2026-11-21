@@ -2,14 +2,19 @@
 
 Agents (Claude Code sessions, sub-agents, build loop) read [AGENTS.md](../AGENTS.md) first, then this file.
 
-| folder | what | tracked |
-|---|---|---|
-| `agents/<role>/AGENT.md` | roles: `lead`, `builder`, `reviewer` | yes |
-| `skills/<name>/SKILL.md` | procedures: `work_task`, `add_task`, `delegate_task`, `verify_result`, `create_skill`, `create_agent` | yes |
-| `templates/` | `task.md` | yes |
-| `prompts/build_loop.md`, `scripts/build_loop.sh` | the build loop: fresh headless Claude sessions, one checklist item each, until [docs/product-checklist.md](../docs/product-checklist.md) has no open box | yes (logs in `state/build-loop/` are local) |
-| `scripts/check_layout.sh` | checks pointers resolve, every skill and role is listed, task folders exist | yes |
-| `state/tasks/<status>/T-NNN.md` | the task queue; folder = status | skeleton only; task files are local |
+The whole setup is **local only**: `AGENTS.md`, `CLAUDE.md`, `.agents/` and `.claude/` are ignored via `.git/info/exclude`. The project repo holds application code only. Keep a private copy of the setup.
+
+| folder | what |
+|---|---|
+| `agents/<role>/AGENT.md` | roles: `lead`, `builder`, `reviewer` |
+| `skills/<name>/SKILL.md` | procedures: `work_task`, `add_task`, `delegate_task`, `verify_result`, `create_skill`, `create_agent` |
+| `templates/` | `task.md` |
+| `prompts/build_loop.md`, `scripts/build_loop.sh` | the build loop: fresh headless Claude sessions, one checklist item each, until [product-checklist.md](product-checklist.md) has no open box; logs in `state/build-loop/` |
+| `product-checklist.md` | definition of done; the build loop works through it |
+| `scripts/check_layout.sh` | checks pointers resolve, every skill and role is listed, task folders exist, no setup file is tracked |
+| `scripts/worktree.sh` | task worktree with the setup linked in (`worktree.sh T-NNN`, `--remove T-NNN`) |
+| `githooks/pre-push` | refuses direct pushes to the default branch (`git config core.hooksPath .agents/githooks`) |
+| `state/tasks/<status>/T-NNN.md` | the task queue; folder = status |
 
 Claude Code finds the skills through `.claude/skills/<name>/SKILL.md` and the roles through `.claude/agents/<role>.md`. Both are pointers to the files here.
 
@@ -20,8 +25,7 @@ Claude Code finds the skills through `.claude/skills/<name>/SKILL.md` and the ro
 - **Claim:** move it to `active/` and set `owner:` (session or agent name). An `active/` task with an owner belongs to that owner; don't touch it. Why: parallel agents must not do the same work twice.
 - **Pick order:** `planned/` tasks whose `depends:` are all in `done/`, then lowest `priority`, then lowest id.
 - **Done** only with evidence in the `## Log` (PR number, merged sha, test count). Why: a task closed on a claim hides gaps.
-- **Code tasks** run on a branch `task/T-NNN` (worktree `../<repo>-wt/T-NNN` when agents work in parallel), PR per [AGENTS.md](../AGENTS.md) Development loop.
-- Task files are local (gitignored). Why: queue state changes on every claim and would conflict across branches. Keep a private copy.
+- **Code tasks** run on a branch `task/T-NNN` (worktree via `scripts/worktree.sh T-NNN` when agents work in parallel: a plain `git worktree add` lacks the ignored setup), PR per [AGENTS.md](../AGENTS.md) Development loop.
 
 ## Holds
 

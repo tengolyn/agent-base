@@ -8,7 +8,7 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 - **Flow:** <input → steps → output>
 - **Shape:** <single user / hosted / library; what must stay easy to change later>
 - **Quality bar:** <what "good" means to the owner, checkable>
-- Definition of done: [docs/product-checklist.md](docs/product-checklist.md).
+- Definition of done: [.agents/product-checklist.md](.agents/product-checklist.md) (local).
 
 ## Repo map
 
@@ -16,22 +16,19 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 |---|---|
 | `<src path>` | <role> |
 | `<tests path>` | <role> |
-| `docs/product-checklist.md` | definition of done; the build loop works through it |
-| `.agents/` | how AI agents build this repo: roles, skills, task queue, build loop. Start at [.agents/README.md](.agents/README.md) |
-| `.claude/skills/`, `.claude/agents/` | Claude Code pointers to the `.agents/` skills and roles |
-| `.githooks/` | `pre-push`: refuses direct pushes to the default branch |
+| `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` | agentic development setup (AgentBase): **local only**, ignored via `.git/info/exclude`. Start at [.agents/README.md](.agents/README.md) |
 
 ## Commands
 
 - **Install:** `<command>`
 - **Validate** (run before calling any work done; skills and roles refer to this line): `<test command> && <lint/build command> && .agents/scripts/check_layout.sh`
 - **Run:** `<command>`
-- **Build loop** (from repo root, started only by the owner): `.agents/scripts/build_loop.sh [--max N] [--stall N] [--timebox MIN] [--model M] [--budget USD] [--once] [--dry-run]`. Fresh headless Claude session per open box in [docs/product-checklist.md](docs/product-checklist.md) until none is open on the default branch, N sessions in a row make no progress, or `.agents/state/BUILD_OFF` exists. PRs labeled `hold` are left for the owner.
+- **Build loop** (from repo root, started only by the owner): `.agents/scripts/build_loop.sh [--max N] [--stall N] [--timebox MIN] [--model M] [--budget USD] [--once] [--dry-run]`. Fresh headless Claude session per open box in [.agents/product-checklist.md](.agents/product-checklist.md) until none is open, N sessions in a row make no progress, or `.agents/state/BUILD_OFF` exists. PRs labeled `hold` are left for the owner.
 
 ## Engineering rules
 
 - **Protected paths (hard rule):** agents never edit `.env`, `<local data dir>`, `<owner-only files, e.g. owner notes, payment config>`. Roles, briefs and the build loop copy this list.
-- **Local-only data (hard rule):** `<local data dir>` and `.agents/state/tasks/*/T-*.md` never reach git. **Secrets** only via env or `.env` (gitignored).
+- **Repo = application code only (hard rule):** the agentic setup (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`) and `<local data dir>` never reach git; they are ignored via `.git/info/exclude`, so even the ignore lines stay out of the repo. Never `git add -f` them. Keep a private copy of the setup. Why: the project repo stays about the product. **Secrets** only via env or `.env` (ignored).
 - **Outward-facing actions are gated (hard rule):** posting, payments, deploys, messages to third parties need the owner's explicit OK each time, unless a standing rule here says otherwise. Why: they cannot be undone.
 - **Tests:** new logic gets a test. A fix gets a test that fails on the old code.
 - **State in files:** steps read and write files; no hidden state. Why: steps run alone, resume, and can be inspected.
@@ -43,11 +40,11 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 Work comes from the task queue (skill `work_task`; new work via `add_task`; sub-agents via `delegate_task` + `verify_result`).
 
 ```
-claim task → branch → commit (one logical change each) → Validate → push → PR → CI green → squash-merge → delete branch → close task with evidence
+claim task → branch (or `.agents/scripts/worktree.sh T-NNN`) → commit (one logical change each) → Validate → push → PR → CI green → squash-merge → delete branch → close task with evidence
 ```
 
-- Never push to the default branch (`.githooks/pre-push` refuses; activate with `git config core.hooksPath .githooks`). Never force-push except `--force-with-lease` on your own branch.
-- Each commit leaves Validate green. Check `git diff --stat`: only files in scope, no secrets or local data.
+- Never push to the default branch (`.agents/githooks/pre-push` refuses; activate with `git config core.hooksPath .agents/githooks`). Never force-push except `--force-with-lease` on your own branch.
+- Each commit leaves Validate green. Check `git diff --stat`: only files in scope, no secrets, local data or setup files.
 - Revert with `git revert` through the same loop.
 
 ## Writing rule

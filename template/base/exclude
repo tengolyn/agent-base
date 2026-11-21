@@ -1,0 +1,12 @@
+# AgentBase: everything for agentic development. install.sh writes the missing lines to .git/info/exclude
+# (never committed, shared by all worktrees), so the project repo holds only application code.
+# No trailing slash: worktrees get symlinks for these, and a directory pattern does not match a symlink.
+/AGENTS.md
+/CLAUDE.md
+/.agents
+/.claude
+
+# secrets: only the example is tracked
+.env
+.env.*
+!.env.example

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Build loop: run headless Claude Code again and again until docs/product-checklist.md has no open box.
+# Build loop: run headless Claude Code again and again until .agents/product-checklist.md has no open box.
 # Each iteration is one fresh `claude -p` session with .agents/prompts/build_loop.md: it finishes one checklist item
 # through a PR, then exits. Never started automatically.
 #
-# Progress counts only once merged on origin's default branch (origin/HEAD; fallback main).
+# The checklist is local (git-ignored); sessions tick it after their PR merges. Progress = origin's default branch
+# (origin/HEAD; fallback main) moved or the open count dropped.
 #
 # Usage: .agents/scripts/build_loop.sh [--max N] [--stall N] [--timebox MIN] [--model M] [--budget USD] [--once] [--dry-run]
 #   --max N        iterations at most (default 40)
@@ -20,7 +21,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
 prompt_file=.agents/prompts/build_loop.md
-checklist=docs/product-checklist.md
+checklist=.agents/product-checklist.md
 state=.agents/state/build-loop
 stop_file=.agents/state/BUILD_OFF
 
@@ -46,15 +47,14 @@ done
 cmd=(timeout "${timebox}m" claude -p --dangerously-skip-permissions --model "$model" --output-format json)
 [ -n "$budget" ] && cmd+=(--max-budget-usd "$budget")
 
-open_items() {  # open boxes on origin/$base (progress counts only once it is merged); "missing" when it is not there
-  local text
-  text=$(git show "origin/$base:$checklist" 2>/dev/null) || { echo missing; return; }
-  printf '%s\n' "$text" | grep -c '^- \[ \]' || true
+open_items() {  # open boxes in the local checklist; "missing" when there is none
+  [ -f "$checklist" ] || { echo missing; return; }
+  grep -c '^- \[ \]' "$checklist" || true
 }
 
 if [ "$dry" = 1 ]; then
   git fetch -q origin || true
-  printf 'open items on origin/%s: %s\n' "$base" "$(open_items)"
+  printf 'open items in %s: %s (default branch %s)\n' "$checklist" "$(open_items)" "$base"
   printf 'cd %q && %s < %q\n' "$root" "$(printf '%q ' "${cmd[@]}")" "$prompt_file"
   exit 0
 fi
@@ -73,8 +73,8 @@ while :; do
   if [ -e "$stop_file" ]; then echo "stop file $stop_file present: stopping"; break; fi
   git fetch -q origin || echo "warning: git fetch failed"
   left=$(open_items)
-  if [ "$left" = missing ]; then echo "$checklist is not on origin/$base yet: merge it first" >&2; exit 1; fi
-  if [ "$left" = 0 ]; then echo "checklist complete on origin/$base: done"; break; fi
+  if [ "$left" = missing ]; then echo "missing $checklist: write it first" >&2; exit 1; fi
+  if [ "$left" = 0 ]; then echo "checklist complete: done"; break; fi
   if [ "$i" -ge "$max" ]; then echo "reached --max $max iterations: stopping"; break; fi
   i=$((i + 1))
   # start each iteration from a clean, current default branch when the tree allows it; leftovers are the session's to resolve

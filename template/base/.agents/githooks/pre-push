@@ -1,5 +1,6 @@
 #!/bin/sh
-# Changes reach the default branch only through a PR (AGENTS.md, Development loop). Refuse a direct push to it.
+# Changes reach the default branch only through a PR (AGENTS.md, Development loop): refuse a direct push to it.
+# Activate: git config core.hooksPath .agents/githooks
 # Override only on the owner's explicit word: ALLOW_MAIN_PUSH=1 git push ...
 base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
 while read -r local_ref local_sha remote_ref remote_sha; do
