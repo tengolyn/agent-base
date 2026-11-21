@@ -1,6 +1,6 @@
 ---
 name: create_agent
-description: Scaffolds a new agent directory and AGENT.md file.
+description: "Add a new role: a standing set of duties, reads, writes and limits."
 ---
 
 Follow [.agents/skills/create_agent/SKILL.md](../../../.agents/skills/create_agent/SKILL.md).

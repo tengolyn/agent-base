@@ -1,6 +1,6 @@
 ---
 name: create_skill
-description: Scaffolds a new skill directory and SKILL.md file adhering strictly to agent conventions.
+description: "Add a new skill: a repeatable procedure with checkable evidence."
 ---
 
 Follow [.agents/skills/create_skill/SKILL.md](../../../.agents/skills/create_skill/SKILL.md).
