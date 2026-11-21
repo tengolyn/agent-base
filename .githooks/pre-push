@@ -1,0 +1,14 @@
+#!/bin/sh
+# Changes reach the default branch only through a PR (AGENTS.md, Development loop). Refuse a direct push to it.
+# Override only on the owner's explicit word: ALLOW_MAIN_PUSH=1 git push ...
+base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/master|"refs/heads/${base:-main}")
+      if [ -z "$ALLOW_MAIN_PUSH" ]; then
+        echo "pre-push: refusing to push to ${remote_ref#refs/heads/}. Use a branch and a PR." >&2
+        exit 1
+      fi ;;
+  esac
+done
+exit 0
