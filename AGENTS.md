@@ -19,6 +19,7 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 | `docs/product-checklist.md` | definition of done; the build loop works through it |
 | `.agents/` | how AI agents build this repo: roles, skills, task queue, build loop. Start at [.agents/README.md](.agents/README.md) |
 | `.claude/skills/`, `.claude/agents/` | Claude Code pointers to the `.agents/` skills and roles |
+| `.env.example` | every env key, two sections: app runtime, agentic development (build loop defaults) |
 | `.githooks/` | `pre-push`: refuses direct pushes to the default branch |
 
 ## Commands
@@ -31,7 +32,7 @@ Single source of truth for anyone (person or AI) working on this repo. Other fil
 ## Engineering rules
 
 - **Protected paths (hard rule):** agents never edit `.env`, `<local data dir>`, `<owner-only files, e.g. owner notes, payment config>`. Roles, briefs and the build loop copy this list.
-- **Local-only data (hard rule):** `<local data dir>` and `.agents/state/tasks/*/T-*.md` never reach git. **Secrets** only via env or `.env` (gitignored).
+- **Local-only data (hard rule):** `<local data dir>` and `.agents/state/tasks/*/T-*.md` never reach git. **Secrets** only via env or `.env` (gitignored). Every key, app or agent tooling, is listed in `.env.example` in its section. Why: one place shows what a fresh clone needs.
 - **Outward-facing actions are gated (hard rule):** posting, payments, deploys, messages to third parties need the owner's explicit OK each time, unless a standing rule here says otherwise. Why: they cannot be undone.
 - **Tests:** new logic gets a test. A fix gets a test that fails on the old code.
 - **State in files:** steps read and write files; no hidden state. Why: steps run alone, resume, and can be inspected.

@@ -11,6 +11,7 @@
 #   --timebox MIN  kill an iteration after MIN minutes (default 120)
 #   --model M      claude model (default opus)
 #   --budget USD   per-iteration spend cap passed to claude (--max-budget-usd); default none
+# Defaults can be set as BUILD_LOOP_MAX|STALL|TIMEBOX|MODEL|BUDGET in the shell or .env (see .env.example).
 # Stop: touch .agents/state/BUILD_OFF  (checked before every iteration)  or Ctrl-C / kill the pid in .agents/state/build-loop/pid
 #
 # Runs with --dangerously-skip-permissions: the session may run any command without asking. The prompt's hard limits
@@ -27,7 +28,15 @@ stop_file=.agents/state/BUILD_OFF
 base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##') || true
 base=${base:-main}
 
-max=40 stall_max=3 timebox=120 model=opus budget="" once=0 dry=0
+# defaults: shell env, then BUILD_LOOP_* lines in .env (only those keys are read), then built-in; flags override
+if [ -f .env ]; then
+  while IFS='=' read -r k v; do
+    v=${v%%#*}; v=${v%"${v##*[![:space:]]}"}; v=${v#\"}; v=${v%\"}
+    [ -z "${!k:-}" ] && [ -n "$v" ] && export "$k=$v"
+  done < <(grep -E '^BUILD_LOOP_(MAX|STALL|TIMEBOX|MODEL|BUDGET)=' .env || true)
+fi
+max=${BUILD_LOOP_MAX:-40} stall_max=${BUILD_LOOP_STALL:-3} timebox=${BUILD_LOOP_TIMEBOX:-120}
+model=${BUILD_LOOP_MODEL:-opus} budget=${BUILD_LOOP_BUDGET:-} once=0 dry=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --max) max="$2"; shift ;;

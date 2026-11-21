@@ -1,6 +1,11 @@
 __pycache__/
 .venv/
 
+# secrets: only the example is tracked
+.env
+.env.*
+!.env.example
+
 # task queue: task files are local only; the status folders (.gitkeep) are tracked
 .agents/state/tasks/*/*
 !.agents/state/tasks/*/.gitkeep
