@@ -1,9 +1,21 @@
+# agent-base repo itself. Not copied by the install. Keep it a superset of .example.gitignore:
+# this repo is maintained with its own setup, so it makes the same local files.
 __pycache__/
 .venv/
+
+# secrets: only the example is tracked
+.env
+.env.*
+!.env.example
 
 # task queue: task files are local only; the status folders (.gitkeep) are tracked
 .agents/state/tasks/*/*
 !.agents/state/tasks/*/.gitkeep
-# build loop logs and stop file: local only
+
+# build loop logs and stop file
 .agents/state/build-loop/
 .agents/state/BUILD_OFF
+
+# Claude Code: personal settings and its worktrees
+.claude/settings.local.json
+.claude/worktrees/

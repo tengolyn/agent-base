@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Checks the .agents/ layout: every skill and role has its Claude pointer (where needed), pointers resolve and match,
-# every skill and role is listed in .agents/README.md, task folders and template exist. Exit 1 on any failure.
+# every skill and role is listed in .agents/README.md, task folders and template exist, .example.gitignore lines are in .gitignore. Exit 1 on any failure.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 fail=0
@@ -41,6 +41,12 @@ done
 for st in planned active done dropped; do [ -d ".agents/state/tasks/$st" ] || err "missing .agents/state/tasks/$st"; done
 t=.agents/templates/task.md
 for k in id title status priority owner branch depends; do grep -q "^$k:" "$t" 2>/dev/null || err "$t: missing $k"; done
+
+# .example.gitignore present: every line must already be in .gitignore (agent-base: superset rule; project: README step 1 not done)
+if [ -f .example.gitignore ]; then
+  missing=$(grep -v '^[[:space:]]*\(#\|$\)' .example.gitignore | while read -r l; do grep -qxF -- "$l" .gitignore 2>/dev/null || printf '%s ' "$l"; done)
+  [ -z "$missing" ] || err ".gitignore lacks .example.gitignore lines: $missing"
+fi
 
 [ "$fail" = 0 ] && echo "check_layout: ok"
 exit "$fail"
