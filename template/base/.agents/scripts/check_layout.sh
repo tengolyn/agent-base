@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Checks the .agents/ layout: every skill and role has its Claude pointer (where needed), pointers resolve and match,
-# every skill and role is listed in .agents/README.md, task folders and template exist, .example.gitignore lines are in .gitignore. Exit 1 on any failure.
+# every skill and role is listed in .agents/README.md, task folders and template exist, no setup file is tracked by git.
+# Exit 1 on any failure.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 fail=0
@@ -42,10 +43,11 @@ for st in planned active done dropped; do [ -d ".agents/state/tasks/$st" ] || er
 t=.agents/templates/task.md
 for k in id title status priority owner branch depends; do grep -q "^$k:" "$t" 2>/dev/null || err "$t: missing $k"; done
 
-# .example.gitignore present: every line must already be in .gitignore (agent-base: superset rule; project: README step 1 not done)
-if [ -f .example.gitignore ]; then
-  missing=$(grep -v '^[[:space:]]*\(#\|$\)' .example.gitignore | while read -r l; do grep -qxF -- "$l" .gitignore 2>/dev/null || printf '%s ' "$l"; done)
-  [ -z "$missing" ] || err ".gitignore lacks .example.gitignore lines: $missing"
+# setup is local only: in a project (this dir is the repo root) git must track none of it
+if top=$(git rev-parse --show-toplevel 2>/dev/null) && [ "$top" = "$(pwd -P)" ]; then
+  tracked=$(git ls-files -- AGENTS.md CLAUDE.md .agents .claude | head -5 | tr '\n' ' ')
+  [ -z "$tracked" ] || err "setup files tracked by git (git rm -r --cached them): $tracked"
+  { git check-ignore -q --no-index AGENTS.md && git check-ignore -q --no-index .agents; } || err "setup not ignored: run install.sh or add the template exclude lines to .git/info/exclude"
 fi
 
 [ "$fail" = 0 ] && echo "check_layout: ok"

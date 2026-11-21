@@ -7,7 +7,7 @@
 2. **Brief.** The sub-agent starts cold, so fill every part:
    - **Task:** id, goal, done-when (paste them from the task file).
    - **Files:** allowed paths; forbidden paths (always the AGENTS.md protected paths, and other agents' files).
-   - **Where:** `git worktree add ../<repo>-wt/T-NNN -b task/T-NNN origin/<default>`; work only there.
+   - **Where:** `.agents/scripts/worktree.sh T-NNN` (prints the path); work only there.
    - **Limits:** no push, PR, merge or task close; no outward-facing actions or real external calls unless stated; any active hold, copied word for word.
    - **Stop rule:** when blocked, or after two failed attempts at the same thing, stop and report. Never force.
    - **Report:** under 150 words: what changed, tests and result, branch and sha, what was not done or not checked.
